@@ -1,4 +1,7 @@
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+const API_KEY = '361de5f2df15d161ebabd80084655895';
+const BASE_URL = 'https://api.themoviedb.org/3';
 const genres = [
   { id: 28, name: 'Action' },
   { id: 12, name: 'Adventure' },
@@ -20,49 +23,25 @@ const genres = [
   { id: 10752, name: 'War' },
   { id: 37, name: 'Western' },
 ];
+export const useApiService = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
 
-const API_KEY = '361de5f2df15d161ebabd80084655895';
-
-const BASE_URL = 'https://api.themoviedb.org/3';
-export default class ApiService {
-  constructor() {
-    this.searchQuery = '';
-    this.page = 1;
-  }
-
-  get query() {
-    return this.searchQuery;
-  }
-
-  set query(newQuery) {
-    this.searchQuery = newQuery;
-  }
-
-  incrementPage() {
-    this.page += 1;
-  }
-
-  resetPage() {
-    this.page = 1;
-  }
-
-  async SearchMoviesData() {
+  const searchMoviesData = async () => {
+    // Ваш код
     const config = {
       method: 'get',
       url: `${BASE_URL}/search/movie`,
       responseType: 'json',
       params: {
         api_key: API_KEY,
-        query: this.searchQuery,
-        page: this.page,
+        query: searchQuery,
+        page: page,
       },
     };
-
     try {
       const response = await axios(config);
-
-      const movies = [];
-      for (const obj of response.data.results) {
+      const movies = response.data.results.map(obj => {
         const {
           id,
           genre_ids,
@@ -75,18 +54,15 @@ export default class ApiService {
           vote_average,
           vote_count,
         } = obj;
-        obj.total_pages = response.data.total_pages;
         const poster_url = poster_path
           ? `https://image.tmdb.org/t/p/original/${poster_path}`
           : 'http://surl.li/glnug';
-
         const genres_names = getGenresByIds(genres, genre_ids);
-        const new_obj = {
+        return {
           id,
           genres_names,
           title,
           poster_url,
-
           backdrop_path,
           overview,
           popularity,
@@ -94,35 +70,32 @@ export default class ApiService {
           vote_average,
           vote_count,
         };
-        movies.push(new_obj);
-      }
+      });
       const data = {
         page: response.data.page,
         movies,
       };
       return data;
-    } catch {
-      console.log('Sonething wrong');
-      return;
+    } catch (error) {
+      console.log('Something went wrong:', error);
+      return null;
     }
-  }
+  };
 
-  async getPopularMovies() {
+  const getPopularMovies = async () => {
     const config = {
       method: 'get',
       url: `${BASE_URL}/trending/all/day`,
       responseType: 'json',
       params: {
         api_key: API_KEY,
-        page: this.page,
+        page: page,
       },
     };
 
-    const movies = [];
-
     try {
       const response = await axios(config);
-      for (const obj of response.data.results) {
+      const movies = response.data.results.map(obj => {
         const {
           id,
           genre_ids,
@@ -135,16 +108,15 @@ export default class ApiService {
           vote_average,
           vote_count,
         } = obj;
-        obj.total_pages = response.data.total_pages;
+
         const poster_url = `https://image.tmdb.org/t/p/original/${poster_path}`;
         const genres_names = getGenresByIds(genres, genre_ids);
 
-        const new_obj = {
+        return {
           id,
           genres_names,
           title,
           poster_url,
-          // release_year,
           backdrop_path,
           overview,
           popularity,
@@ -152,20 +124,21 @@ export default class ApiService {
           vote_average,
           vote_count,
         };
-        movies.push(new_obj);
-      }
+      });
+
       const data = {
-        page: response.page,
+        page: response.data.page,
         movies,
       };
-      return data;
-    } catch {
-      console.log('Sonething wrong');
-      return;
-    }
-  }
 
-  async getMovieById(id) {
+      return data;
+    } catch (error) {
+      console.log('Something went wrong:', error);
+      return null;
+    }
+  };
+
+  const getMovieById = async id => {
     const config = {
       method: 'get',
       url: `${BASE_URL}/movie/${id}`,
@@ -182,6 +155,7 @@ export default class ApiService {
       const poster_url = data.poster_path
         ? `https://image.tmdb.org/t/p/original/${data.poster_path}`
         : 'http://surl.li/glnug';
+
       const newData = {
         id,
         title: data.title,
@@ -193,16 +167,24 @@ export default class ApiService {
         popularity: data.popularity,
         genres_names,
       };
-      return newData;
-    } catch {
-      return;
-    }
-  }
-}
 
-// Функція для перетворення масиву ids жанрів в масив імен жанрів
-function getGenresByIds(genres, ids) {
-  return genres
-    .filter(genre => ids.includes(genre.id))
-    .map(genre => genre.name);
-}
+      return newData;
+    } catch (error) {
+      console.log('Something went wrong:', error);
+      return null;
+    }
+  };
+
+  const getGenresByIds = (genres, ids) => {
+    return genres
+      .filter(genre => ids.includes(genre.id))
+      .map(genre => genre.name);
+  };
+
+  return {
+    searchMoviesData,
+    getPopularMovies,
+    getMovieById,
+  };
+};
+export default useApiService;

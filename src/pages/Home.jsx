@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import ApiService from '../components/ApiService/ApiService';
-
-const apiService = new ApiService();
+import { useApiService } from 'components/ApiService/ApiService';
 
 const Home = () => {
+  const apiService = useApiService();
   const [moviesData, setMoviesData] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await apiService.getPopularMovies();
@@ -14,7 +14,7 @@ const Home = () => {
     };
 
     fetchData();
-  }, []);
+  }, [apiService]);
   return (
     <div>
       <ul>
