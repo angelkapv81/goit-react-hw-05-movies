@@ -1,7 +1,4 @@
 import axios from 'axios';
-// // import API_KEY from './vars';
-// // import genres from './genres';
-
 const genres = [
   { id: 28, name: 'Action' },
   { id: 12, name: 'Adventure' },
@@ -71,7 +68,6 @@ export default class ApiService {
           genre_ids,
           title,
           poster_path,
-          release_date,
           backdrop_path,
           overview,
           popularity,
@@ -85,13 +81,12 @@ export default class ApiService {
           : 'http://surl.li/glnug';
 
         const genres_names = getGenresByIds(genres, genre_ids);
-        const release_year = release_date.slice(0, 4);
         const new_obj = {
           id,
           genres_names,
           title,
           poster_url,
-          release_year,
+
           backdrop_path,
           overview,
           popularity,
@@ -127,14 +122,12 @@ export default class ApiService {
 
     try {
       const response = await axios(config);
-      console.log('AAAA');
       for (const obj of response.data.results) {
         const {
           id,
           genre_ids,
           title,
           poster_path,
-          release_date,
           backdrop_path,
           overview,
           popularity,
@@ -146,13 +139,12 @@ export default class ApiService {
         const poster_url = `https://image.tmdb.org/t/p/original/${poster_path}`;
         const genres_names = getGenresByIds(genres, genre_ids);
 
-        const release_year = release_date.slice(0, 4);
         const new_obj = {
           id,
           genres_names,
           title,
           poster_url,
-          release_year,
+          // release_year,
           backdrop_path,
           overview,
           popularity,

@@ -6,20 +6,27 @@ const apiService = new ApiService();
 const Home = () => {
   const [moviesData, setMoviesData] = useState([]);
   useEffect(() => {
-    // Здесь можно выполнить запрос и получить данные
-    apiService.getPopularMovies().then(console.log);
+    const fetchData = async () => {
+      const data = await apiService.getPopularMovies();
+      if (data) {
+        setMoviesData(data.movies);
+      }
+    };
+
+    fetchData();
   }, []);
   return (
     <div>
-      {moviesData.map(movie => (
-        <ul>
-          {moviesData.map(movie => (
+      <ul>
+        Trending today
+        {moviesData
+          .filter(movie => movie.title !== undefined)
+          .map(movie => (
             <li key={movie.id}>
               <p>{movie.title}</p>
             </li>
           ))}
-        </ul>
-      ))}
+      </ul>
     </div>
   );
 };

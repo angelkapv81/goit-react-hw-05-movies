@@ -1,18 +1,28 @@
-// import { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ApiService from '../components/ApiService/ApiService';
+import { Link } from 'react-router-dom';
 
 const apiService = new ApiService();
 
-const Movies = () => {
-  // useEffect(() => {
-  //   // запрос
-  // }, []);
-  // return <div>тут фільми</div>;
-  // };
-
+export const Movies = () => {
   const [inputValue, setInputValue] = useState('');
   const [moviesData, setMoviesData] = useState([]);
+
+  useEffect(() => {
+    if (inputValue === '') {
+      return;
+    }
+    // console.log('пошук', inputValue);
+    const fetchData = async () => {
+      apiService.searchQuery = inputValue;
+      const data = await apiService.SearchMoviesData();
+      if (data) {
+        setMoviesData(data.movies);
+      }
+    };
+
+    fetchData();
+  }, [inputValue]);
 
   const handleChange = event => {
     setInputValue(event.target.value);
@@ -21,11 +31,8 @@ const Movies = () => {
   const handleSubmit = async event => {
     event.preventDefault();
 
-    // apiService.searchQuery = inputValue;
-
     try {
-      const response = await apiService.getPopularMovies();
-      console.log(response.movies);
+      const response = await apiService.SearchMoviesData();
       setMoviesData(response.movies);
     } catch (error) {
       console.log('Произошла ошибка:', error);
@@ -36,17 +43,21 @@ const Movies = () => {
     <div>
       <form onSubmit={handleSubmit}>
         <input type="text" value={inputValue} onChange={handleChange} />
-        <button type="submit">кнопка</button>
+        {/* <button type="submit">OK</button> */}
       </form>
-      {moviesData.map(movie => (
-        <ul>
-          {moviesData.map(movie => (
-            <li key={movie.id}>
-              <p>{movie.title}</p>
-            </li>
-          ))}
-        </ul>
-      ))}
+      {/* <ul> */}
+      {moviesData
+        .filter(movie => movie.title !== undefined)
+        .map(movie => {
+          return (
+            // <li>
+            <Link key={movie.id} to={`${movie.id}`}>
+              {movie.title}
+            </Link>
+            // </li>
+          );
+        })}
+      {/* </ul> */}
     </div>
   );
 };
