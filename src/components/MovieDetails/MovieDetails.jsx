@@ -38,7 +38,6 @@ const MovieDetails = () => {
 
   const location = useLocation();
   const backLinkHref = location.state?.from ?? '/';
-  console.log(backLinkHref);
 
   return (
     <Container>
@@ -61,10 +60,14 @@ const MovieDetails = () => {
       </MovieInfo>
       <NavigationList>
         <NavigationItem>
-          <StyledLink to="cast">Cast</StyledLink>
+          <StyledLink to="cast" state={{ from: backLinkHref }}>
+            Cast
+          </StyledLink>
         </NavigationItem>
         <NavigationItem>
-          <StyledLink to="reviews">Reviews</StyledLink>
+          <StyledLink to="reviews" state={{ from: backLinkHref }}>
+            Reviews
+          </StyledLink>
         </NavigationItem>
       </NavigationList>
       <Outlet />

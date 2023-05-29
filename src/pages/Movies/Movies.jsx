@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Container,
   Form,
@@ -14,25 +14,33 @@ import ApiService from '../../apiservice/ApiService';
 const apiService = new ApiService();
 
 export const Movies = () => {
-  const [inputValue, setInputValue] = useState('');
-  const [moviesData, setMoviesData] = useState([]);
-  const [searched, setSearched] = useState(false); // Added searched state
+  const [moviesData, setMoviesData] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('query');
+  const [query, setQuery] = useState(() => searchQuery || '');
+  const location = useLocation();
 
-  const handleSearch = async () => {
-    if (inputValue === '') {
-      return;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        apiService.searchQuery = query;
+        const data = await apiService.SearchMoviesData();
+        setMoviesData(data.movies);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (searchQuery) {
+      fetchData();
     }
+  }, [query, searchQuery]);
 
-    apiService.searchQuery = inputValue;
-    const data = await apiService.SearchMoviesData();
-    if (data) {
-      setMoviesData(data.movies);
-      setSearched(true); // Set searched to true when performing the search
-    }
+  const handleSearch = () => {
+    setSearchParams({ query: query });
   };
 
-  const handleChange = event => {
-    setInputValue(event.target.value);
+  const handleChange = e => {
+    setQuery(e.target.value);
   };
 
   return (
@@ -41,7 +49,7 @@ export const Movies = () => {
         <Form onSubmit={e => e.preventDefault()}>
           <Input
             type="text"
-            value={inputValue}
+            value={query}
             onChange={handleChange}
             placeholder="Search movies..."
           />
@@ -49,13 +57,15 @@ export const Movies = () => {
             Search
           </Button>{' '}
         </Form>
-        {searched && (
+        {moviesData && (
           <List>
             {moviesData
               .filter(movie => movie.title !== undefined)
               .map(movie => (
                 <ListItem key={movie.id}>
-                  <Link to={`/movies/${movie.id}`}>{movie.title}</Link>
+                  <Link state={{ from: location }} to={`/movies/${movie.id}`}>
+                    {movie.title}
+                  </Link>
                 </ListItem>
               ))}
           </List>

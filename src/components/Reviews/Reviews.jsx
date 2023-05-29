@@ -58,6 +58,7 @@ export const Reviews = () => {
               <b>Created At: </b>
               {formatDate(review.created_at)}
             </p>
+            <a href={review.url}>Read Full Review</a>
             <hr />
           </div>
         ))
