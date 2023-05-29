@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useApiService } from 'components/ApiService/ApiService';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import ApiService from '../../apiservice/ApiService';
+
+const apiService = new ApiService();
 
 const Home = () => {
-  const apiService = useApiService();
   const [moviesData, setMoviesData] = useState([]);
 
   useEffect(() => {
@@ -14,20 +16,22 @@ const Home = () => {
     };
 
     fetchData();
-  }, [apiService]);
+  }, []);
+
   return (
     <div>
+      <h1>Trending today</h1>
       <ul>
-        Trending today
         {moviesData
           .filter(movie => movie.title !== undefined)
           .map(movie => (
             <li key={movie.id}>
-              <p>{movie.title}</p>
+              <Link to={`/movies/${movie.id}`}>{movie.title}</Link>
             </li>
           ))}
       </ul>
     </div>
   );
 };
+
 export default Home;

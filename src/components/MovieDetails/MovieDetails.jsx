@@ -1,54 +1,75 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Outlet, useParams } from 'react-router-dom';
-import axios from 'axios';
-import ApiService from 'components/ApiService/ApiService';
-// const apiService = ApiService();
-import { useApiService } from 'components/ApiService/ApiService';
-export const MovieDetails = () => {
-  // const params = useParams;
-  const apiService = useApiService();
-  const { movieId } = useParams(); // Получение параметра из URL
+import { Outlet, useParams, useLocation } from 'react-router-dom';
+import ApiService from '../../apiservice/ApiService';
 
-  const [movieData, setMovieData] = useState(null);
+import {
+  Container,
+  BackLink,
+  MovieInfo,
+  MoviePoster,
+  MovieDetailsContent,
+  MovieTitle,
+  UserScore,
+  Genres,
+  Overview,
+  OverviewTitle,
+  OverviewText,
+  NavigationList,
+  NavigationItem,
+  StyledLink,
+} from './MovieDetails.styled';
 
-  //   useEffect(() => {
-  //     const fetchMovieData = async () => {
-  //       //   try {
-  //       const response = await apiService.getMovieById();
-  //       const data = response.data;
-  //       setMovieData(data);
-  //       //   }
-  //       //   catch (error) {
-  //       //     console.log('Произошла ошибка:', error);
-  //       //   }
-  //     };
+const apiService = new ApiService();
 
-  //     fetchMovieData();
-  //   }, [movieId]);
+const MovieDetails = () => {
+  const { movieId } = useParams();
+  const [movieData, setMovieData] = useState({});
 
-  if (!movieData) {
-    return <p>Loading...</p>;
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await apiService.getMovieById(movieId);
+      if (data) {
+        setMovieData(data);
+      }
+    };
 
-  const { title, imageUrl } = movieData;
+    fetchData();
+  }, [movieId]);
 
-  //   console.log(params);
-  const backLinkHref = '/movies';
+  const location = useLocation();
+  const backLinkHref = location.state?.from ?? '/';
+  console.log(backLinkHref);
+
   return (
-    <>
-      <Link to={backLinkHref}>Go Back</Link>;<p>інфа про фільми</p>
-      <h2>{title}</h2>
-      <img src={imageUrl} alt={title} />
-      <ul>
-        <li>
-          <Link to="cast">Cast</Link>
-        </li>
-        <li>
-          <Link to="reviews">Reviews</Link>
-        </li>
-      </ul>
+    <Container>
+      <BackLink to={backLinkHref}>&#9754;Go back</BackLink>
+      <MovieInfo>
+        <MoviePoster src={movieData.poster_url} alt={movieData.title} />
+        <MovieDetailsContent>
+          <MovieTitle>{movieData.title}</MovieTitle>
+          <UserScore>
+            <b>User Score:</b> {movieData.popularity}
+          </UserScore>
+          <Genres>
+            <b>Genres:</b> {movieData.genres_names}
+          </Genres>
+          <Overview>
+            <OverviewTitle>Overview</OverviewTitle>
+            <OverviewText>{movieData.overview}</OverviewText>
+          </Overview>
+        </MovieDetailsContent>
+      </MovieInfo>
+      <NavigationList>
+        <NavigationItem>
+          <StyledLink to="cast">Cast</StyledLink>
+        </NavigationItem>
+        <NavigationItem>
+          <StyledLink to="reviews">Reviews</StyledLink>
+        </NavigationItem>
+      </NavigationList>
       <Outlet />
-    </>
+    </Container>
   );
 };
+
 export default MovieDetails;

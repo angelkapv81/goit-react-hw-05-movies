@@ -1,37 +1,17 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
 
-const StyledNavLink = styled(NavLink)`
-  &.active {
-    color: red;
-  }
-`;
+import { Container, StyledNavLink } from './Header.styled';
 
 const Header = () => {
   return (
-    <>
-      <nav>
-        <StyledNavLink to="/">Home</StyledNavLink>
-        <StyledNavLink to="/movies">Movies</StyledNavLink>
-      </nav>
-      ;
-    </>
+    <Container>
+      <StyledNavLink exact="true" to="/">
+        Home
+      </StyledNavLink>
+
+      <StyledNavLink to="/movies">Movies</StyledNavLink>
+    </Container>
   );
 };
-export default Header;
 
-//  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-//    <div class="navbar-nav">
-//      <a class="nav-link active" aria-current="page" href="#">
-//        Home
-//      </a>
-//      <a class="nav-link" href="#">
-//        Features
-//      </a>
-//      <a class="nav-link" href="#">
-//        Pricing
-//      </a>
-//      <a class="nav-link disabled">Disabled</a>
-//    </div>
-//  </div>;
+export default Header;
